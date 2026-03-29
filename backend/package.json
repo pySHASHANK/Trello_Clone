@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
+    "build": "npx prisma generate && npx prisma db push",
     "start": "node server.js"
   },
   "dependencies": {
