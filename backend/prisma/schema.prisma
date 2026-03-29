@@ -1,0 +1,172 @@
+// This is the Prisma Schema file.
+// It tells Prisma how our database tables should look.
+// After editing this, you run `npx prisma db push` to sync it to PostgreSQL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// We are using PostgreSQL as our database.
+// The URL is stored securely in the .env file.
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// 1. BOARD MODEL (The main workspace in Trello)
+// ----------------------------------------------------
+model Board {
+  id        String   @id @default(uuid()) // A unique random ID like 'abc-123'
+  title     String   // The name of the board (e.g. "My Project")
+  createdAt DateTime @default(now())      // When it was created
+
+  // A Board can contain many Lists.
+  // We link them together. If a Board is deleted, its Lists are deleted too (Cascade).
+  lists     List[]
+  labels    Label[]
+}
+
+// ----------------------------------------------------
+// 2. LIST MODEL (The columns like "To Do", "Doing", "Done")
+// ----------------------------------------------------
+model List {
+  id        String   @id @default(uuid())
+  title     String   // e.g., "To Do"
+  order     Float    // A number used to sort lists when you drag and drop them
+  
+  // The layout connection: Which board does this list belong to?
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  // A List can contain many Cards.
+  cards     Card[]
+}
+
+// ----------------------------------------------------
+// 3. CARD MODEL (The individual tasks you drag around)
+// ----------------------------------------------------
+model Card {
+  id          String   @id @default(uuid())
+  title       String   // e.g., "Fix the login bug"
+  description String?  // Optional deeper explanation (the '?'' means it's optional)
+  order       Float    // A number used to sort cards inside lists
+
+  // Cover image / color
+  coverUrl    String?
+  // Due Date functionality
+  dueDate     DateTime?
+
+  // Which list does this card belong to right now?
+  listId      String
+  list        List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  // A card can have many comments and attachments
+  comments    Comment[]
+  attachments Attachment[]
+  
+  // A card can be assigned to multiple members
+  members     CardMember[]
+  
+  // Checklists and Labels
+  checklists  Checklist[]
+  labels      CardLabel[]
+}
+
+// ----------------------------------------------------
+// NEW FEATURE: LABELS
+// ----------------------------------------------------
+model Label {
+  id        String   @id @default(uuid())
+  title     String?  // Optional name, e.g., "Urgent"
+  color     String   // e.g., "red", "blue"
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  cards     CardLabel[]
+}
+
+model CardLabel {
+  cardId    String
+  labelId   String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label     Label    @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, labelId])
+}
+
+// ----------------------------------------------------
+// NEW FEATURE: CHECKLISTS
+// ----------------------------------------------------
+model Checklist {
+  id        String   @id @default(uuid())
+  title     String   @default("Checklist")
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  items     ChecklistItem[]
+}
+
+model ChecklistItem {
+  id          String   @id @default(uuid())
+  title       String
+  isCompleted Boolean  @default(false)
+  checklistId String
+  checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+}
+
+
+// ----------------------------------------------------
+// 4. MEMBER MODEL (Users in the system)
+// ----------------------------------------------------
+model Member {
+  id        String   @id @default(uuid())
+  name      String
+  avatarUrl String?
+
+  cards     CardMember[]
+  comments  Comment[]
+}
+
+// ----------------------------------------------------
+// 5. CARD_MEMBER JOIN TABLE (Assignments)
+// ----------------------------------------------------
+model CardMember {
+  cardId    String
+  memberId  String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, memberId])
+}
+
+// ----------------------------------------------------
+// 6. COMMENT MODEL
+// ----------------------------------------------------
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  authorId  String
+  author    Member   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+// ----------------------------------------------------
+// 7. ATTACHMENT MODEL
+// ----------------------------------------------------
+model Attachment {
+  id        String   @id @default(uuid())
+  fileName  String
+  fileUrl   String
+  fileType  String?
+  fileSize  Int?
+  createdAt DateTime @default(now())
+
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+}
+
