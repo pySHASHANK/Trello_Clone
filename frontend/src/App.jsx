@@ -32,6 +32,7 @@ const MOTIVATIONS = [
     author: "John Wooden"
   }
 ];
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:5000';
 
 function App() {
   const { boards, activeBoard, setBoards, setActiveBoard, addListToActiveBoard, addCardToList, moveList, moveCard, removeListFromActiveBoard, addBoard, removeBoard, updateListInStore, updateCardInStore, removeCardFromStore } = useStore();
@@ -674,12 +675,12 @@ function App() {
                    {activeCard.attachments?.length > 0 && activeCard.attachments.map(att => (
                       <div key={att.id} className="flex gap-3 bg-white hover:bg-slate-50 border border-slate-200 p-2 rounded items-center mb-2 transition shadow-sm">
                          {att.fileType?.includes('image') ? (
-                            <img src={`http://localhost:5000${att.fileUrl}`} alt={att.fileName} className="w-16 h-12 rounded object-cover" />
+                            <img src={`${BACKEND_URL}${att.fileUrl}`} alt={att.fileName} className="w-16 h-12 rounded object-cover" />
                          ) : (
                             <div className="w-16 h-12 bg-slate-200 rounded font-bold text-slate-500 flex items-center justify-center text-[10px] break-words p-1 text-center border border-slate-300">{att.fileType?.split('/')[1]?.toUpperCase() || 'FILE'}</div>
                          )}
                          <div className="flex-1 overflow-hidden">
-                           <a href={`http://localhost:5000${att.fileUrl}`} target="_blank" rel="noreferrer" className="font-bold text-sm text-blue-600 hover:text-blue-700 hover:underline truncate block">{att.fileName}</a>
+                           <a href={`${BACKEND_URL}${att.fileUrl}`} target="_blank" rel="noreferrer" className="font-bold text-sm text-blue-600 hover:text-blue-700 hover:underline truncate block">{att.fileName}</a>
                            <p className="text-xs text-slate-500">{att.fileSize ? Math.round(att.fileSize/1024) + ' KB' : 'Added recently'}</p>
                          </div>
                       </div>

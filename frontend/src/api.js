@@ -3,7 +3,7 @@ import axios from 'axios';
 // We create an 'axios instance'. 
 // This makes sure every request we send remembers the base URL of our backend API!
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', 
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api', 
 });
 
 // -- API helper functions --
