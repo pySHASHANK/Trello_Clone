@@ -17,7 +17,7 @@ const app = express();
 // Set up middleware
 // Think of middleware like bouncers at a club checking requests before they reach your logic
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*', // Allow frontend connections, default to all if undefined
+  origin: true, // This dynamically reflects the request origin, allowing connections from anywhere while supporting credentials
   credentials: true
 }));
 app.use(express.json()); // Allow our app to read JSON data sent in the request body

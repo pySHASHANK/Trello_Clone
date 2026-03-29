@@ -4,5 +4,8 @@ services:
     env: node
     plan: free
     rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        value: "file:./dev.db"
     buildCommand: npm install && npx prisma db push && node prisma/seed.js
     startCommand: npm start

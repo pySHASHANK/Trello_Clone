@@ -32,7 +32,7 @@ const MOTIVATIONS = [
     author: "John Wooden"
   }
 ];
-const BACKEND_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'https://trello-clone-1-eg3c.onrender.com';
 
 function App() {
   const { boards, activeBoard, setBoards, setActiveBoard, addListToActiveBoard, addCardToList, moveList, moveCard, removeListFromActiveBoard, addBoard, removeBoard, updateListInStore, updateCardInStore, removeCardFromStore } = useStore();
